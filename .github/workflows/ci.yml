@@ -43,7 +43,8 @@ jobs:
 
       - name: Run tests
         working-directory: backend
-        env : DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/shopsphere
+        env: 
+           DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/shopsphere
         run: |
           pytest
 
