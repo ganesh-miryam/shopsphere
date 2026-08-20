@@ -60,7 +60,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::957266312042:role/ShopSphereGitHubActionsRole
-          aws-region: us-east-1
+          aws-region: us-east-2
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -68,8 +68,8 @@ jobs:
       - name: Push Docker image to ECR
         working-directory: backend
         run: |
-          docker tag shopsphere-backend:latest 957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
-          docker push 957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
+          docker tag shopsphere-backend:latest 957266312042.dkr.ecr.us-east-2.amazonaws.com/shopsphere-backend:latest
+          docker push 957266312042.dkr.ecr.us-east-2.amazonaws.com/shopsphere-backend:latest
 
   deploy:
     needs: test-and-build
@@ -84,7 +84,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
       
-            sudo docker pull 957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
+            sudo docker pull 957266312042.dkr.ecr.us-east-2.amazonaws.com/shopsphere-backend:latest
             sudo docker rm -f shopsphere-api || true
             sudo docker run -d --name shopsphere-api --restart unless-stopped -p 8000:8000 --env-file /etc/shopsphere.env 957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
             sleep 5
