@@ -55,7 +55,7 @@ jobs:
         working-directory: backend
         run: |
          docker build -t shopsphere-backend:latest .
-         
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -70,3 +70,24 @@ jobs:
         run: |
           docker tag shopsphere-backend:latest 957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
           docker push 957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
+
+  deploy:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo docker pull 957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
+            sudo docker rm -f shopsphere-api || true
+            sudo docker run -d \
+              --name shopsphere-api \
+              -p 8000:8000 \
+              --env-file /etc/shopsphere.env
+              -e DATABASE_URL="${DATABASE_URL}" \
+              957266312042.dkr.ecr.us-east-1.amazonaws.com/shopsphere-backend:latest
